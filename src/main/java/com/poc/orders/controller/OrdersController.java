@@ -24,6 +24,8 @@ public class OrdersController {
     @Autowired
     private OrdersService ordersService;
 
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found."; // Define a format string
+    private static final String UNEXPECTED_ERROR_OCCURRED = "An unexpected error occurred.";
     /**
      * This method handles the POST request to add a new order.
      * It receives an order object in the request body, sends it to the service layer
@@ -39,7 +41,7 @@ public class OrdersController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/addOrder")
-    public ResponseEntity<?> placeOrder(@RequestBody Orders orders) {
+    public ResponseEntity<Object> placeOrder(@RequestBody Orders orders) {
         try {
             if (orders.getProductname() == null || orders.getProductprice() <= 0) {
                 // Return 400 Bad Request with a descriptive error message
@@ -71,7 +73,7 @@ public class OrdersController {
             @ApiResponse(responseCode = "404", description = "No orders found")
     })
     @GetMapping("/allOrders")
-    public ResponseEntity<?> getAllOrders(){
+    public ResponseEntity<Object> getAllOrders(){
         try {
             List<Orders> orders = ordersService.getAllOrders();
             if (orders.isEmpty()){
@@ -104,20 +106,21 @@ public class OrdersController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{orderid}")
-    public ResponseEntity<?> getOrderById(@PathVariable int orderid) {
+    public ResponseEntity<Object> getOrderById(@PathVariable int orderid) {
         try {
             // Fetch the order using the service layer
             Orders orders = ordersService.getOrderById(orderid);
             return new ResponseEntity<>(orders, HttpStatus.OK); // 200 OK with order details
         } catch (OrderNotFoundException e) {
             // Log the exception message and return 404 Not Found
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, orderid);
             log.error(e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse("Order with ID " + orderid + " not found.", 404);
+            ErrorResponse errorResponse = new ErrorResponse(errorMessage, 404);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404 Not Found with error message
         } catch (Exception e) {
             // Log any other unexpected errors
             log.error("Unexpected error occurred while fetching order: {}", e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse("An unexpected error occurred.", 500);
+            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error
         }
     }
@@ -138,17 +141,18 @@ public class OrdersController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PutMapping("/updateOrder/{orderid}")
-    public ResponseEntity<?> updateOrderById(@RequestBody Orders orders, @PathVariable int orderid){
+    public ResponseEntity<Object> updateOrderById(@RequestBody Orders orders, @PathVariable int orderid){
         try {
             Orders updatedOrder = ordersService.updateOrderById(orders, orderid);
             return ResponseEntity.ok(updatedOrder);
         }catch (OrderNotFoundException e) {
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, orderid);
             log.error(e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse("Order with ID " + orderid + " not found.", 404);
+            ErrorResponse errorResponse = new ErrorResponse(errorMessage, 404);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404 Not Found with error response
         } catch (Exception e) {
             log.error("Unexpected error occurred while updating order: {}", e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse("An unexpected error occurred.", 500);
+            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error with error response
         }
     }
@@ -168,7 +172,7 @@ public class OrdersController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @DeleteMapping("/deleteOrder/{orderid}")
-    public ResponseEntity<?> deleteOrderById(@PathVariable Integer orderid) { // Change to Integer
+    public ResponseEntity<Object> deleteOrderById(@PathVariable Integer orderid) { // Change to Integer
         try {
             ordersService.deleteOrderById(orderid);
             String successMessage = "Order with ID " + orderid + " deleted successfully."; // Success message
@@ -180,7 +184,7 @@ public class OrdersController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404 Not Found with error response
         } catch (Exception e) {
             log.error("Unexpected error occurred while deleting order: {}", e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse("An unexpected error occurred.", 500);
+            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error with error response
         }
     }

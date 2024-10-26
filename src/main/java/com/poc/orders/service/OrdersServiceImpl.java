@@ -18,6 +18,8 @@ public class OrdersServiceImpl implements OrdersService{
     @Autowired
     private OrdersRepositoty ordersRepositoty;
 
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found."; // Define a format string
+
     @Override
     public Orders placeOrder(Orders orders) {
         // Check if the incoming order object is null
@@ -60,7 +62,8 @@ public class OrdersServiceImpl implements OrdersService{
         if (getData != null){
             return getData;
         } else {
-            throw new OrderNotFoundException("Order with ID " + ordersid + " not found."); // Or return null
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, ordersid);
+            throw new OrderNotFoundException(errorMessage); // Or return null
         }
     }
 
@@ -75,7 +78,8 @@ public class OrdersServiceImpl implements OrdersService{
 
             return ordersRepositoty.save(existingOrder);
         } else{
-            throw new OrderNotFoundException("Order with ID " + orderid + " not found.");
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, orderid);
+            throw new OrderNotFoundException(errorMessage);
         }
     }
 
