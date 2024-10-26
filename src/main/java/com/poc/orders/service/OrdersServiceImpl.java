@@ -18,7 +18,7 @@ public class OrdersServiceImpl implements OrdersService{
     @Autowired
     private OrdersRepositoty ordersRepositoty;
 
-    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found."; // Define a format string
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found"; // Define a format string
 
     @Override
     public Orders placeOrder(Orders orders) {
@@ -64,6 +64,18 @@ public class OrdersServiceImpl implements OrdersService{
         } else {
             String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, ordersid);
             throw new OrderNotFoundException(errorMessage); // Or return null
+        }
+    }
+
+    @Override
+    public Orders findByIdAndProductname(int orderid, String productname){
+        Orders getDataByIdAndName = ordersRepositoty.findByOrderidAndProductname(orderid, productname);
+
+        if (getDataByIdAndName != null) {
+            return getDataByIdAndName;
+        } else {
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE + " or Product name " + productname, orderid);
+            throw new OrderNotFoundException(errorMessage);
         }
     }
 

@@ -15,4 +15,6 @@ public interface OrdersService {
     public Orders updateOrderById(Orders orders, int orderid);
 
     public void deleteOrderById(int orderid);
+
+    public Orders findByIdAndProductname(int orderid, String productname);
 }

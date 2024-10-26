@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-public class OrdersControllerTest {
+class OrdersControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +56,7 @@ public class OrdersControllerTest {
     }
 
     @Test
-    public void placeOrder_ShouldReturnCreatedOrder() throws Exception {
+    void placeOrder_ShouldReturnCreatedOrder() throws Exception {
         // Create a sample order request body
         Orders order = new Orders();
         order.setProductname("Sample Product");

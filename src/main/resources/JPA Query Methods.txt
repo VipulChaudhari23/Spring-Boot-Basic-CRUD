@@ -1,0 +1,60 @@
+Query Method Naming Conventions
+Retrieval Methods:
+
+findBy: Retrieve entities.
+readBy: Another way to retrieve entities.
+getBy: Retrieve entities (though findBy is more commonly used).
+queryBy: Retrieve entities with a query.
+
+Counting Methods:
+countBy: Count entities.
+
+Deletion Methods:
+deleteBy: Delete entities.
+removeBy: Another way to delete entities.
+
+Existence Checks:
+existsBy: Check if an entity exists.
+
+Conditions
+Logical Conditions
+
+Logical Operators:
+And: Combine conditions (e.g., findByNameAndAge).
+Or: Use logical OR (e.g., findByNameOrAge).
+
+Comparison Operators
+
+Comparison Operators:
+LessThan: Less than (e.g., findByAgeLessThan).
+LessThanEqual: Less than or equal to (e.g., findByAgeLessThanEqual).
+GreaterThan: Greater than (e.g., findByAgeGreaterThan).
+GreaterThanEqual: Greater than or equal to (e.g., findByAgeGreaterThanEqual).
+Between: Between two values (e.g., findByAgeBetween).
+IsNull: Check for null (e.g., findByNameIsNull).
+IsNotNull: Check for not null (e.g., findByNameIsNotNull).
+
+String Matching
+
+String Matching Operators:
+Like: Pattern matching (e.g., findByNameLike).
+NotLike: Pattern not matching (e.g., findByNameNotLike).
+StartingWith: Starts with (e.g., findByNameStartingWith).
+EndingWith: Ends with (e.g., findByNameEndingWith).
+Containing: Contains (e.g., findByNameContaining).
+
+Collection Conditions
+
+Collection Operations:
+In: Check if a value is in a collection (e.g., findByAgeIn).
+NotIn: Check if a value is not in a collection (e.g., findByAgeNotIn).
+
+Sorting and Paging
+
+Sorting and Paging:
+Methods can accept Sort or Pageable as parameters to sort and paginate results.
+Example: findByLastName(String lastName, Sort sort) or findByAgeGreaterThan(int age, Pageable pageable).
+
+Grouping and Aggregation
+Aggregation Functions (only through custom queries):
+Sum, Avg, Max, Min can be used in conjunction with @Query.

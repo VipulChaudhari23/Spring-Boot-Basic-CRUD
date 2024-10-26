@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.poc.orders.response.ErrorResponse;
 
@@ -24,8 +23,9 @@ public class OrdersController {
     @Autowired
     private OrdersService ordersService;
 
-    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found."; // Define a format string
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found"; // Define a format string
     private static final String UNEXPECTED_ERROR_OCCURRED = "An unexpected error occurred.";
+
     /**
      * This method handles the POST request to add a new order.
      * It receives an order object in the request body, sends it to the service layer
@@ -124,6 +124,55 @@ public class OrdersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error
         }
     }
+
+    /**
+     * This method retrieves an order from the system based on its ID and product name.
+     * It calls the service layer to fetch the order and returns it in the response.
+     * If the order is not found, it returns a 404 Not Found status with an error message.
+     * If an unexpected error occurs, it returns a 500 Internal Server Error status.
+     *
+     * @param orderid      The ID of the order to retrieve
+     * @param productname  The name of the product associated with the order
+     * @return ResponseEntity containing the found Order and HTTP status
+     */
+    @Operation(summary = "Find Order by ID and Product Name",
+            description = "Retrieve an order based on its ID and product name.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order found successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/findByIdAndName")
+    public ResponseEntity<Object> findByIdAndProductname(
+            @RequestParam(value = "orderid") int orderid,
+            @RequestParam(value = "productname", required = false) String productname) {
+
+        try {
+            // Fetch the order using the service layer based on order ID and product name
+            Orders order = ordersService.findByIdAndProductname(orderid, productname);
+
+            // Return the found order with HTTP status 200 OK
+            return new ResponseEntity<>(order, HttpStatus.OK);
+
+        } catch (OrderNotFoundException e) {
+            // Handle case where the order is not found
+            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE +   " or Product name " + productname, orderid);
+            log.error(e.getMessage()); // Log the error message
+
+            // Create error response for not found status
+            ErrorResponse errorResponse = new ErrorResponse(errorMessage, 404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+        } catch (Exception e) {
+            // Handle any unexpected errors
+            log.error("Unexpected error occurred while fetching order: {}", e.getMessage());
+
+            // Create error response for internal server error status
+            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
 
     /**
      * This endpoint updates an existing order by its ID.
