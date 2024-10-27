@@ -107,22 +107,25 @@ public class OrdersController {
     })
     @GetMapping("/{orderid}")
     public ResponseEntity<Object> getOrderById(@PathVariable int orderid) {
-        try {
-            // Fetch the order using the service layer
-            Orders orders = ordersService.getOrderById(orderid);
-            return new ResponseEntity<>(orders, HttpStatus.OK); // 200 OK with order details
-        } catch (OrderNotFoundException e) {
-            // Log the exception message and return 404 Not Found
-            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, orderid);
-            log.error(e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse(errorMessage, 404);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404 Not Found with error message
-        } catch (Exception e) {
-            // Log any other unexpected errors
-            log.error("Unexpected error occurred while fetching order: {}", e.getMessage());
-            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error
-        }
+        // Fetch the order using the service layer
+        Orders orders = ordersService.getOrderById(orderid);
+        return new ResponseEntity<>(orders, HttpStatus.OK); // 200 OK with order details
+//        try {
+//            // Fetch the order using the service layer
+//            Orders orders = ordersService.getOrderById(orderid);
+//            return new ResponseEntity<>(orders, HttpStatus.OK); // 200 OK with order details
+//        } catch (OrderNotFoundException e) {
+//            // Log the exception message and return 404 Not Found
+//            String errorMessage = String.format(ORDER_NOT_FOUND_MESSAGE, orderid);
+//            log.error(e.getMessage());
+//            ErrorResponse errorResponse = new ErrorResponse(errorMessage, 404);
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404 Not Found with error message
+//        } catch (Exception e) {
+//            // Log any other unexpected errors
+//            log.error("Unexpected error occurred while fetching order: {}", e.getMessage());
+//            ErrorResponse errorResponse = new ErrorResponse(UNEXPECTED_ERROR_OCCURRED, 500);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 Internal Server Error
+//        }
     }
 
     /**

@@ -1,0 +1,111 @@
+package com.poc.orders.controller;
+
+import com.poc.orders.entities.Orders;
+import com.poc.orders.exception.OrderNotFoundException;
+import com.poc.orders.service.OrdersService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/orders")
+@Slf4j
+public class OrdersController {
+
+    @Autowired
+    private OrdersService ordersService;
+
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order with ID %d not found";
+
+    @Operation(summary = "Place an order", description = "Endpoint to place a new order. Accepts order details in the request body and returns the placed order.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order placed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/addOrder")
+    public ResponseEntity<Object> placeOrder(@RequestBody Orders orders) {
+        if (orders.getProductname() == null || orders.getProductprice() <= 0) {
+            String errorMessage = "Invalid order data: Product name cannot be null and product price must be greater than zero.";
+            log.error(errorMessage);
+            return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+
+        Orders order = ordersService.placeOrder(orders);
+        return ResponseEntity.ok(order);
+    }
+
+    @Operation(summary = "Get all orders", description = "Endpoint to retrieve all orders from the system.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of orders"),
+            @ApiResponse(responseCode = "404", description = "No orders found")
+    })
+    @GetMapping("/allOrders")
+    public ResponseEntity<Object> getAllOrders() {
+        List<Orders> orders = ordersService.getAllOrders();
+        if (orders.isEmpty()) {
+            log.info("No orders found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No orders data found.");
+        }
+
+        log.info("Successfully retrieved {} orders", orders.size());
+        return ResponseEntity.ok(orders);
+    }
+
+    @Operation(summary = "Get Order by ID", description = "Retrieve an order using its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved order details"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @GetMapping("/{orderid}")
+    public ResponseEntity<Orders> getOrderById(@PathVariable int orderid) {
+        Orders orders = ordersService.getOrderById(orderid);
+        return ResponseEntity.ok(orders);
+    }
+
+    @Operation(summary = "Find Order by ID and Product Name",
+            description = "Retrieve an order based on its ID and product name.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order found successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @GetMapping("/findByIdAndName")
+    public ResponseEntity<Orders> findByIdAndProductname(
+            @RequestParam(value = "orderid") int orderid,
+            @RequestParam(value = "productname", required = false) String productname) {
+
+        Orders order = ordersService.findByIdAndProductname(orderid, productname);
+        return ResponseEntity.ok(order);
+    }
+
+    @Operation(summary = "Update Order by ID", description = "Update an existing order using its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated order details"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PutMapping("/updateOrder/{orderid}")
+    public ResponseEntity<Orders> updateOrderById(@RequestBody Orders orders, @PathVariable int orderid) {
+        Orders updatedOrder = ordersService.updateOrderById(orders, orderid);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @Operation(summary = "Delete Order by ID", description = "Delete an existing order using its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted order"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @DeleteMapping("/deleteOrder/{orderid}")
+    public ResponseEntity<String> deleteOrderById(@PathVariable Integer orderid) {
+        ordersService.deleteOrderById(orderid);
+        String successMessage = "Order with ID " + orderid + " deleted successfully.";
+        log.info(successMessage);
+        return ResponseEntity.ok(successMessage);
+    }
+}
