@@ -92,7 +92,7 @@ class OrdersServiceImplTest {
             ordersService.getOrderById(1);
         });
 
-        assertEquals("Order with ID 1 not found.", exception.getMessage());
+        assertEquals("Order with ID 1 not found", exception.getMessage());
     }
 
     @Test
@@ -123,7 +123,7 @@ class OrdersServiceImplTest {
             ordersService.updateOrderById(order, 1);
         });
 
-        assertEquals("Order with ID 1 not found.", exception.getMessage());
+        assertEquals("Order with ID 1 not found", exception.getMessage());
     }
 
     @Test

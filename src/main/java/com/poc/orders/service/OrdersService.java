@@ -17,4 +17,8 @@ public interface OrdersService {
     public void deleteOrderById(int orderid);
 
     public Orders findByIdAndProductname(int orderid, String productname);
+
+    default String getProductName(int orderid){
+        return null;
+    };
 }
